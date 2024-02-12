@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import Menu, MenuItem
+from .models import MenuItem
 
-admin.site.register((Menu, MenuItem))
+admin.site.register(MenuItem)

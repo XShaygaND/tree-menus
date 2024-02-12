@@ -1,6 +1,4 @@
-{% load menu_tags %}
-
-<p><a href="{{ menu.url }}">{{ menu.name }}</a></p>
+<p><a href="{{ menu_url }}">{{ menu_name }}</a></p>
 {% for item in menu_items %}
     <p style="margin-left: {{ item.depth }}em;">
         {% if not item == active_item %}
@@ -10,6 +8,3 @@
         {% endif %}
     </p>   
 {% endfor %}
-
-
-{% draw_menu 'test' %}

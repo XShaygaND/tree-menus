@@ -1,25 +1,10 @@
 from django.db import models
 from django.utils.text import slugify
 
-class Menu(models.Model):
-    """Class for representing menus"""
-
-    name = models.CharField(max_length=255)
-    url = models.CharField(max_length=255, blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        self.url = f'/menu/{self.name}/'
-            
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-
 class MenuItem(models.Model):
     """Class for representing menu items"""
 
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    name = models.CharField(max_length=99)
     title = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
@@ -41,7 +26,7 @@ class MenuItem(models.Model):
         return '/' + '/'.join(('menu', slugify(self.menu.name), slugify(self.title))) + '/'
 
     def __str__(self):
-        return self.menu.name + ' | ' + self.title
+        return self.name + ' | ' + self.title
 
     class Meta:
         verbose_name = "Menu Item"

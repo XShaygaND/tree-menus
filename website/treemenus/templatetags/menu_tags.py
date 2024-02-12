@@ -6,22 +6,44 @@ register = Library()
 
 @register.inclusion_tag('templatetags/menu_template.html', takes_context=True)
 def draw_menu(context, menu_name):
+    def get_children(menu_items, active_item):
+        return [item for item in menu_items if item.parent == active_item]
+    
+    def get_parent(menu_items, active_item):
+        for item in menu_items:
+            children = get_children(menu_items, item)
+            print(children)
+            if active_item in children:
+                return item
+            
     def find_active_child(path, menu_items):
         for item in menu_items:
             if path == item.url:
                 return item
         return None
     
-    def create_hierarchy(menu_items, active_item):
+    def create_hierarchy(menu_items, active_item, scope_item=None):
         item_list = []
 
+        scope_item = active_item if not scope_item else scope_item
+
         if active_item.children:
-            item_list.extend(active_item.children.all())
+            for parent in get_children(menu_items, active_item):
+                if parent.children:
+                    for child in get_children(menu_items, parent):
+                        item_list.append(child)
+                    item_list.append(parent)
 
-        item_list.append(active_item)
+                else:
+                    item_list.extend(get_children(menu_items, active_item))
+        
+        if scope_item.children and scope_item != active_item:
+            item_list.extend(get_children(menu_items, scope_item))
 
-        if active_item.parent:
-            item_list.extend(create_hierarchy(menu_items=menu_items, active_item=active_item.parent))
+        item_list.append(scope_item)
+
+        if scope_item.parent:
+            item_list.extend(create_hierarchy(menu_items=menu_items, active_item=active_item, scope_item=get_parent(menu_items, scope_item)))
 
         else:
             item_list.extend([item for item in menu_items if not item.parent])
@@ -33,7 +55,7 @@ def draw_menu(context, menu_name):
     menu_items = {}
 
     path = context['request'].path
-    items = MenuItem.objects.filter(menu__name=menu_name).prefetch_related('children')
+    items = MenuItem.objects.filter(name=menu_name).select_related('parent')
     if not items:
         return {'menu_items': menu_items}
 
@@ -42,12 +64,15 @@ def draw_menu(context, menu_name):
         return {
             'menu_items': [item for item in items if not item.parent],
             'active_item': active_item,
-            'menu': items[0].menu,
+            'menu_name': items[0].name,
+            'menu_url': '/'.join(items[0].url.split('/')[:3]),
             }
 
     menu_items = create_hierarchy(items, active_item)[::-1]
+
     return {
         'menu_items': menu_items,
         'active_item': active_item,
-        'menu': items[0].menu,
+        'menu_name': items[0].name,
+        'menu_url': '/'.join(items[0].url.split('/')[:3]),
         }
