@@ -23,33 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-5g(!q&z$-cy6%2y8&av&#o*evd20i_w%7xu0^a%47jr269dq(g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True # Left it on True sinc the project isn't ready for production
 
 ALLOWED_HOSTS = []
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        },
-        'db_logs': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'db.log',
-        },
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['db_logs'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
-}
-
 
 
 # Application definition
